@@ -6,16 +6,12 @@
   "configurations": [
     {
       "type": "node",
-      "request": "launch",
-      "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "program": "${workspaceFolder}\\index.js",
+      "request": "attach",
+      "protocol": "inspector",
+      "name": "Debug",
+      "skipFiles": ["<node_internals>/**"],
       "preLaunchTask": "tsc: build - tsconfig.json",
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ]
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
     }
   ]
 }
