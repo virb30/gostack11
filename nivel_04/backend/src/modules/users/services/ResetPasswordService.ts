@@ -7,8 +7,6 @@ import IUsersRepository from '../repositories/IUsersRepository';
 import IUserTokensRepository from '../repositories/IUserTokensRepository';
 import IHashProvider from '../providers/HashProvider/models/IHashProvider';
 
-// import User from '../infra/typeorm/entities/User';
-
 interface IRequest {
   token: string;
   password: string;
@@ -20,7 +18,7 @@ class ResetPasswordService {
     @inject('UsersRepository')
     private usersRepository: IUsersRepository,
 
-    @inject('UserTokesRepository')
+    @inject('UserTokensRepository')
     private userTokensRepository: IUserTokensRepository,
 
     @inject('HashProvider')
