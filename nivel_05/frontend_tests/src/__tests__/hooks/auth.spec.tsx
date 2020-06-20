@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-hooks';
 import MockAdapter from 'axios-mock-adapter';
 
 import api from '../../services/api';
@@ -49,7 +49,7 @@ describe('Auth hook', () => {
       switch (key) {
         case '@GoBarber:token':
           return 'token-123';
-        case '@GoBarber:use':
+        case '@GoBarber:user':
           return JSON.stringify({
             id: 'user123',
             name: 'John Doe',
@@ -59,5 +59,67 @@ describe('Auth hook', () => {
           return null;
       }
     });
+
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: AuthProvider,
+    });
+
+    expect(result.current.user.email).toEqual('johndoe@example.com.br');
+  });
+
+  it('should be able to sign out', async () => {
+    jest.spyOn(Storage.prototype, 'getItem').mockImplementation(key => {
+      switch (key) {
+        case '@GoBarber:token':
+          return 'token-123';
+        case '@GoBarber:user':
+          return JSON.stringify({
+            id: 'user123',
+            name: 'John Doe',
+            email: 'johndoe@example.com.br',
+          });
+        default:
+          return null;
+      }
+    });
+
+    const removeItemSpy = jest.spyOn(Storage.prototype, 'removeItem');
+
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: AuthProvider,
+    });
+
+    act(() => {
+      result.current.signOut();
+    });
+
+    expect(result.current.user).toBeUndefined();
+    expect(removeItemSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('should be able to update user data', async () => {
+    const setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: AuthProvider,
+    });
+
+    const user = {
+      id: 'user123',
+      name: 'John Doe',
+      email: 'johndoe@example.com.br',
+      avatar_url: 'image-test.jpg',
+    };
+
+    act(() => {
+      result.current.updateUser(user);
+    });
+
+    expect(setItemSpy).toHaveBeenCalledWith(
+      '@GoBarber:user',
+      JSON.stringify(user),
+    );
+
+    expect(result.current.user).toEqual(user);
   });
 });
